@@ -1,0 +1,213 @@
+🧭 V1 Goal (keep this tight)
+
+A Tauri desktop app that:
+
+Loads Claude usage page (from Anthropic)
+Reads usage %
+Sends notifications at thresholds
+Minimizes to tray
+Shows % on hover
+Opens full window on click
+🧱 Architecture (V1)
+Tauri App
+├── WebView (Claude usage page)
+├── Poller (JS → eval in WebView)
+├── State (current %)
+├── Tray (icon + tooltip)
+└── Notifications
+
+👉 No ccusage, no OCR, no complexity.
+
+📁 Project Structure
+src/
+  main.ts              # frontend entry
+  usage.ts             # polling + parsing logic
+  tray.ts              # tray interaction helpers
+
+src-tauri/
+  src/
+    main.rs            # tray + window lifecycle
+🔑 Core Components
+1. WebView (hidden or visible)
+
+Start simple:
+
+Load:
+
+https://claude.ai/settings/usage
+Keep it visible for V1 debugging, then hide later
+2. Usage Extraction (critical piece)
+Strategy:
+Execute JS inside WebView
+Extract % from DOM
+Minimal version (works surprisingly well)
+export async function getUsagePercent(webview) {
+  const result = await webview.eval(`
+    (() => {
+      const match = document.body.innerText.match(/(\\d+)%/);
+      return match ? parseInt(match[1]) : null;
+    })()
+  `);
+
+  return result;
+}
+Better version (more stable)
+
+After inspecting the page:
+
+Target a specific label like “Usage”
+
+Example idea:
+
+document.querySelector('[data-testid="usage-percent"]')
+
+👉 You’ll refine this once you inspect the DOM
+
+3. Polling Loop
+let lastPercent = null;
+
+setInterval(async () => {
+  const percent = await getUsagePercent(webview);
+
+  if (percent == null) return;
+
+  if (percent !== lastPercent) {
+    updateTray(percent);
+    checkThresholds(percent);
+    lastPercent = percent;
+  }
+}, 15000);
+4. Notifications
+
+Use Tauri API:
+
+import { sendNotification } from '@tauri-apps/api/notification';
+
+function checkThresholds(percent) {
+  if (percent >= 90) {
+    sendNotification("Claude usage at 90% 🔴");
+  } else if (percent >= 75) {
+    sendNotification("Claude usage at 75% 🟡");
+  }
+}
+
+👉 Add simple “only notify once per threshold” logic
+
+5. System Tray (core UX)
+Rust setup
+use tauri::{SystemTray, SystemTrayMenu, CustomMenuItem};
+
+let quit = CustomMenuItem::new("quit".to_string(), "Quit");
+
+let tray_menu = SystemTrayMenu::new()
+    .add_item(quit);
+
+let tray = SystemTray::new().with_menu(tray_menu);
+Handle events
+.on_system_tray_event(|app, event| {
+    match event {
+        tauri::SystemTrayEvent::LeftClick { .. } => {
+            let window = app.get_window("main").unwrap();
+            window.show().unwrap();
+            window.set_focus().unwrap();
+        }
+        tauri::SystemTrayEvent::MenuItemClick { id, .. } => {
+            if id == "quit" {
+                std::process::exit(0);
+            }
+        }
+        _ => {}
+    }
+})
+6. Hide Instead of Close
+.on_window_event(|event| {
+    if let tauri::WindowEvent::CloseRequested { api, .. } = event.event() {
+        event.window().hide().unwrap();
+        api.prevent_close();
+    }
+})
+7. Dynamic Tray Tooltip (important for your goal)
+
+Update tooltip from frontend → backend
+
+In Rust:
+app.tray_handle().set_tooltip(format!("Claude Usage: {}%", percent));
+Call from frontend:
+
+Use Tauri invoke:
+
+await invoke("update_tray_tooltip", { percent });
+8. Optional: Dynamic Tray Icon (nice polish)
+
+Map:
+
+<70 → green
+70–90 → yellow
+90+ → red
+🔄 App Lifecycle
+First launch
+Open window
+User logs into Claude
+Navigate to usage page
+Normal use
+App polls every 15s
+Updates:
+tray tooltip
+notifications
+Close button
+Window hides
+App continues running in tray
+Tray click
+Reopens window
+⚠️ Edge Cases (don’t skip these)
+1. Not logged in
+
+Detect:
+
+if (document.body.innerText.includes("Sign in")) {
+  return "NOT_LOGGED_IN";
+}
+
+→ Show notification or reopen window
+
+2. Page stops updating
+
+Fix:
+
+setInterval(() => {
+  webview.eval(`window.location.reload()`);
+}, 5 * 60 * 1000);
+3. Parsing fails
+Return null
+Don’t crash
+Keep last known value
+🎯 V1 Feature Checklist
+ Load Claude usage page
+ Extract %
+ Poll every ~15s
+ Tray icon persists
+ Tooltip shows %
+ Notifications at thresholds
+ Close → minimize to tray
+ Click tray → reopen
+🚀 Nice-to-have (if you have extra time)
+Tray menu:
+“Refresh now”
+“Open Claude”
+Small dashboard:
+current %
+last updated time
+Auto-start on login
+🧠 Key design philosophy
+
+For V1:
+
+Make it dumb but reliable
+
+Don’t over-parse
+Don’t over-optimize
+Don’t predict anything yet
+
+Just:
+
+“Read % → notify → show in tray”
