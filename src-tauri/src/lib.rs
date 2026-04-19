@@ -1,7 +1,10 @@
+pub mod error;
 mod claude;
 mod state;
 mod poller;
 mod notify;
+
+pub use error::{AppError, Result};
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]

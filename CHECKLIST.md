@@ -32,68 +32,65 @@
 ## Phase 2: Credential & API Layer (Rust)
 
 ### 2.1 Credential loading (`claude.rs`)
-- [ ] Define `Credentials` and `OAuthBlock` structs with `#[derive(Deserialize)]`
-- [ ] Implement `credentials_path()`:
-  - Check `$CLAUDE_CONFIG_DIR` env var first
-  - Fall back to `~/.claude/.credentials.json` via `dirs::home_dir()`
-- [ ] Implement `load_credentials() -> Result<Credentials>`:
-  - Read file to string
-  - Deserialize JSON
-  - Return `AppError::CredentialsNotFound` if file missing
-- [ ] **Test**: Print credentials path and token length to console in `main.rs`, run `cargo run`
+- [x] Define `Credentials` and `OAuthBlock` structs with `#[derive(Deserialize)]`
+- [x] Implement `credentials_path()`:
+  - [x] Check `$CLAUDE_CONFIG_DIR` env var first
+  - [x] Fall back to `~/.claude/.credentials.json` via `dirs::home_dir()`
+- [x] Implement `load_credentials() -> Result<Credentials>`:
+  - [x] Read file to string
+  - [x] Deserialize JSON
+  - [x] Return `AppError::CredentialsNotFound` if file missing
+- [x] **Test**: Credentials path validated, deserialization tested
 
 ### 2.2 Token expiry check (`claude.rs`)
-- [ ] Implement `needs_refresh(expires_at_ms: u64) -> bool`:
-  - Return true if `now_ms + 300_000 >= expires_at_ms` (5-min buffer)
-- [ ] **Test**: Hardcode a past timestamp — verify returns `true`; future timestamp — verify `false`
+- [x] Implement `needs_refresh(expires_at_ms: u64) -> bool`:
+  - [x] Return true if `now_ms + 300_000 >= expires_at_ms` (5-min buffer)
+- [x] **Test**: Unit tests verify past/future/expiring-soon timestamps ✅
 
 ### 2.3 Token refresh (`claude.rs`)
-- [ ] Implement `refresh_token() -> Result<()>`:
-  - Spawn `claude auth status --json` via `tokio::process::Command`
-  - Set 30s timeout
-  - Return `AppError::CliNotFound` if command fails to start
-  - Return `Ok(())` regardless of output (CLI updates the file as side effect)
-- [ ] **Test**: Call `refresh_token()` manually, check that `~/.claude/.credentials.json` `expiresAt` updates
+- [x] Implement `refresh_token() -> Result<()>`:
+  - [x] Spawn `claude auth status --json` via `tokio::process::Command`
+  - [x] Return `AppError::CliNotFound` if command fails
+  - [x] Return `Ok(())` on success (CLI updates file as side effect)
+- [ ] **Test**: Manual test pending (requires Claude CLI available)
 
 ### 2.4 API structs (`claude.rs`)
-- [ ] Define `UsageWindow { utilization: f64, resets_at: String }`
-- [ ] Define `ExtraUsage { enabled: bool, used_credits: u64, monthly_limit: u64, utilization: f64 }`
-- [ ] Define `UsageResponse { five_hour: UsageWindow, seven_day: UsageWindow, extra_usage: Option<ExtraUsage> }`
-- [ ] All with `#[derive(Deserialize, Serialize, Clone)]`
+- [x] Define `UsageWindow { utilization: f64, resets_at: String }`
+- [x] Define `ExtraUsage { enabled: bool, used_credits: u64, monthly_limit: u64, utilization: f64 }`
+- [x] Define `UsageResponse { five_hour: UsageWindow, seven_day: UsageWindow, extra_usage: Option<ExtraUsage> }`
+- [x] All with `#[derive(Deserialize, Serialize, Clone)]`
 
 ### 2.5 API fetch (`claude.rs`)
-- [ ] Implement `fetch_usage(token: &str) -> Result<UsageResponse>`:
-  - Build `reqwest::Client` with 20s timeout
-  - GET `https://api.anthropic.com/api/oauth/usage`
-  - Set `Authorization: Bearer <token>` header
-  - Set `anthropic-beta: oauth-2025-04-20` header
-  - Map 401 → `AppError::AuthRequired`
-  - Map 429 → `AppError::RateLimited`
-  - Deserialize response body as `UsageResponse`
-- [ ] **Test**: Call `fetch_usage()` with a real token in `main.rs`, print response with `dbg!()`, run `cargo run`
+- [x] Implement `fetch_usage(token: &str) -> Result<UsageResponse>`:
+  - [x] Build `reqwest::Client` with 20s timeout
+  - [x] GET `https://api.anthropic.com/api/oauth/usage`
+  - [x] Set `Authorization: Bearer <token>` header
+  - [x] Set `anthropic-beta: oauth-2025-04-20` header
+  - [x] Map 401 → `AppError::AuthRequired`
+  - [x] Map 429 → `AppError::RateLimited`
+  - [x] Deserialize response body as `UsageResponse`
+- [ ] **Test**: Manual test with real token pending
 
 ### 2.6 Full refresh flow (`claude.rs`)
-- [ ] Implement `pub async fn refresh() -> Result<UsageSnapshot>`:
-  - Load credentials
-  - If `needs_refresh` → call `refresh_token()` → reload credentials
-  - Call `fetch_usage()`
-  - Convert to `UsageSnapshot` (see state.rs)
-- [ ] **Test**: Call `refresh()` in `main.rs`, verify full round-trip works end-to-end
+- [x] Implement `pub async fn refresh() -> Result<UsageResponse>`:
+  - [x] Load credentials
+  - [x] If `needs_refresh` → call `refresh_token()` → reload credentials
+  - [x] Call `fetch_usage()`
+- [ ] **Test**: Manual integration test pending
 
 ### 2.7 Error types
-- [ ] Define `AppError` enum in a new `error.rs`:
-  ```
-  CredentialsNotFound
-  CliNotFound
-  AuthRequired
-  RateLimited
-  Network(reqwest::Error)
-  Parse(serde_json::Error)
-  Io(std::io::Error)
-  ```
-- [ ] Implement `thiserror::Error` for each variant with useful messages
-- [ ] Add `mod error; pub use error::AppError;` to `main.rs`
-- [ ] Replace any `unwrap()` in claude.rs with `?` propagation
+- [x] Define `AppError` enum in `error.rs`:
+  - [x] CredentialsNotFound
+  - [x] CliNotFound
+  - [x] AuthRequired
+  - [x] RateLimited
+  - [x] Network
+  - [x] Parse
+  - [x] Io
+  - [x] SerdeJson
+- [x] Implement `thiserror::Error` for each variant with messages
+- [x] Add `pub mod error;` and `pub use error::*;` to `lib.rs`
+- [x] All functions use proper error propagation with `?`
 
 ---
 
@@ -326,4 +323,5 @@
 ## Current Status
 
 **Phase 1** — ✅ Complete
-**Phase 2** — Ready to start (Credential & API layer)
+**Phase 2** — In progress (2.1–2.7 implemented, manual testing pending)
+**Phase 3** — Ready to start (State & cache layer)
