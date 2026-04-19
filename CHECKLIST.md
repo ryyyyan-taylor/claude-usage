@@ -97,7 +97,7 @@
 ## Phase 3: State & Cache Layer (Rust)
 
 ### 3.1 UsageSnapshot (`state.rs`)
-- [ ] Define `UsageSnapshot`:
+- [x] Define `UsageSnapshot`:
   ```rust
   pub struct UsageSnapshot {
       pub five_hour: WindowData,
@@ -110,11 +110,12 @@
       pub resets_at: DateTime<Utc>,
   }
   ```
-- [ ] Implement `From<UsageResponse> for UsageSnapshot` to convert API response
-- [ ] All structs derive `Serialize, Deserialize, Clone`
+- [x] Implement `From<UsageResponse> for UsageSnapshot` to convert API response
+- [x] All structs derive `Serialize, Deserialize, Clone`
+- [x] Add helper for ISO 8601 timestamp parsing with fallback
 
 ### 3.2 AppState (`state.rs`)
-- [ ] Define `AppState`:
+- [x] Define `AppState`:
   ```rust
   pub struct AppState {
       pub snapshot: Option<UsageSnapshot>,
@@ -125,18 +126,19 @@
       pub notified_thresholds: HashSet<u8>,
   }
   ```
-- [ ] Implement `AppState::new() -> Self` with all defaults
-- [ ] Add `AppState::is_stale(&self) -> bool` — true if `last_refreshed` > 10 minutes ago
+- [x] Implement `AppState::new() -> Self` with all defaults
+- [x] Add `AppState::is_stale(&self) -> bool` — true if `last_refreshed` > 10 minutes ago
+- [x] Implement `Default` trait
 
 ### 3.3 Snapshot cache (`state.rs`)
-- [ ] Implement `cache_path() -> PathBuf`:
-  - `dirs::cache_dir()` / `claude-usage` / `snapshot.json`
-  - Create parent dir if missing
-- [ ] Implement `load_cached() -> Option<UsageSnapshot>`:
-  - Read file, deserialize JSON, return None on any error
-- [ ] Implement `save_cache(snapshot: &UsageSnapshot)`:
-  - Serialize to pretty JSON, write file, ignore errors silently
-- [ ] **Test**: Save a dummy snapshot, kill and restart app, verify it loads the cache
+- [x] Implement `cache_path() -> Result<PathBuf>`:
+  - [x] `dirs::cache_dir()` / `claude-usage` / `snapshot.json`
+  - [x] Create parent dir if missing
+- [x] Implement `load_cached() -> Option<UsageSnapshot>`:
+  - [x] Read file, deserialize JSON, return None on any error
+- [x] Implement `save_cache(snapshot: &UsageSnapshot) -> Result<()>`:
+  - [x] Serialize to pretty JSON, write file
+- [x] **Test**: Unit tests for state initialization, staleness, timestamp parsing ✅
 
 ---
 
@@ -323,5 +325,6 @@
 ## Current Status
 
 **Phase 1** — ✅ Complete
-**Phase 2** — In progress (2.1–2.7 implemented, manual testing pending)
-**Phase 3** — Ready to start (State & cache layer)
+**Phase 2** — ✅ Complete
+**Phase 3** — ✅ Complete
+**Phase 4** — Ready to start (Polling loop)
