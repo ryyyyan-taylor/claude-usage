@@ -5,27 +5,27 @@
 ### 1.1 Initialize Tauri app
 - [x] Run `yarn create tauri-app` with Svelte + TypeScript template
 - [x] Confirm `src-tauri/` and `src/` directories exist
-- [ ] Run `yarn install` and verify dev server starts (`yarn tauri dev`)
-- [ ] Commit: "init: tauri + svelte scaffold"
+- [x] Run `yarn install` and verify dev server starts (`yarn tauri dev`)
+- [x] Commit: "init: tauri + svelte scaffold"
 
 ### 1.2 Add Rust dependencies
-- [ ] Add to `src-tauri/Cargo.toml`:
-  - `tokio` (features: full)
-  - `reqwest` (features: json, rustls-tls, default-features = false)
-  - `serde` + `serde_json`
-  - `dirs`
-  - `chrono` (features: serde)
-  - `thiserror`
-- [ ] Run `cargo check` inside `src-tauri/` — no errors
-- [ ] Commit: "chore: add rust dependencies"
+- [x] Add to `src-tauri/Cargo.toml`:
+  - [x] `tokio` (features: full)
+  - [x] `reqwest` (features: json, rustls-tls, default-features = false)
+  - [x] `serde` + `serde_json`
+  - [x] `dirs`
+  - [x] `chrono` (features: serde)
+  - [x] `thiserror`
+- [x] Run `cargo check` inside `src-tauri/` — no errors
+- [x] Commit: "chore: add rust dependencies"
 
 ### 1.3 Project structure
-- [ ] Create `src-tauri/src/claude.rs` (empty module)
-- [ ] Create `src-tauri/src/state.rs` (empty module)
-- [ ] Create `src-tauri/src/poller.rs` (empty module)
-- [ ] Create `src-tauri/src/notify.rs` (empty module)
-- [ ] Declare all modules in `main.rs` with `mod` statements
-- [ ] Run `cargo check` — no errors
+- [x] Create `src-tauri/src/claude.rs` (empty module)
+- [x] Create `src-tauri/src/state.rs` (empty module)
+- [x] Create `src-tauri/src/poller.rs` (empty module)
+- [x] Create `src-tauri/src/notify.rs` (empty module)
+- [x] Declare all modules in `lib.rs` with `mod` statements
+- [x] Run `cargo check` — no errors
 
 ---
 
@@ -325,4 +325,5 @@
 
 ## Current Status
 
-**Phase 1** — In progress (1.1 done, 1.2 and 1.3 next)
+**Phase 1** — ✅ Complete
+**Phase 2** — Ready to start (Credential & API layer)
