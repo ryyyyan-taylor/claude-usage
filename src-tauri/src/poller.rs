@@ -61,7 +61,7 @@ pub async fn start_poller(state: Arc<Mutex<AppState>>, app: AppHandle) {
                 // Save to cache
                 let _ = save_cache(&snapshot);
 
-                // Emit event to main window
+                // Emit event to main window (frontend updates tray via UI)
                 if let Some(window) = app.get_webview_window("main") {
                     let _ = window.emit("usage_updated", snapshot.clone());
                 }

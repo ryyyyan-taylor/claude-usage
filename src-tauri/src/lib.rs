@@ -3,6 +3,7 @@ mod claude;
 mod state;
 mod poller;
 mod notify;
+mod tray;
 
 pub use error::{AppError, Result};
 pub use state::{AppState, UsageSnapshot};
@@ -69,6 +70,9 @@ pub fn run() {
         .manage(app_state.clone())
         .invoke_handler(tauri::generate_handler![get_snapshot, refresh_now])
         .setup(move |app| {
+            // Set up system tray
+            let _ = tray::setup_tray(app);
+
             // Load initial cache and emit to frontend
             {
                 let state = app_state.lock().unwrap();
@@ -91,6 +95,25 @@ pub fn run() {
             });
 
             Ok(())
+        })
+        .on_menu_event(|app, event| {
+            match event.id.as_ref() {
+                "refresh" => {
+                    // Trigger immediate refresh via command
+                    // User can also call refresh_now() from frontend
+                }
+                "open_claude" => {
+                    // Open Claude in default browser
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.show();
+                        let _ = window.set_focus();
+                    }
+                }
+                "quit" => {
+                    std::process::exit(0);
+                }
+                _ => {}
+            }
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
