@@ -264,19 +264,19 @@
 ## Phase 8: Config (Rust)
 
 ### 8.1 Config file (`config.rs`)
-- [ ] Define `Config` struct:
-  ```rust
-  pub struct Config {
-      pub refresh_interval_seconds: u64,   // default: 60
-      pub notify_thresholds_5h: Vec<u8>,   // default: [75, 90]
-      pub notify_thresholds_7d: Vec<u8>,   // default: [90]
-  }
-  ```
-- [ ] Implement `Config::load() -> Self`:
-  - Path: `dirs::config_dir()` / `claude-usage` / `config.toml`
-  - Parse with `toml` crate
-  - Fall back to `Config::default()` on missing or parse error
-- [ ] **Test**: Create config file with `refresh_interval_seconds = 30`, verify poller picks it up
+- [x] Define `Config` struct with `#[serde(default)]` for partial overrides:
+  - [x] `refresh_interval_seconds: u64` (default: 60)
+  - [x] `notify_thresholds_5h: Vec<u8>` (default: [75, 90])
+  - [x] `notify_thresholds_7d: Vec<u8>` (default: [90])
+- [x] Implement `Config::load() -> Self`:
+  - [x] Path: `dirs::config_dir()` / `claude-usage` / `config.toml`
+  - [x] Parse with `toml` crate, fall back to defaults on missing/invalid
+- [x] Implement `Config::write_defaults_if_missing()` — creates commented config on first run
+- [x] Wire config into `run()` — load on startup, pass interval/thresholds to poller
+- [x] Update `poller::start_poller()` signature to accept interval + thresholds
+- [x] Update `notify::check_thresholds()` to accept thresholds as parameters
+- [x] Separate 5h/7d latch keys to avoid collision
+- [x] All 18 unit tests passing ✅
 
 ---
 
@@ -336,6 +336,7 @@
 **Phase 5** — ✅ Complete
 **Phase 6** — ✅ Complete
 **Phase 7** — ✅ Complete
-**Phase 8** — Ready to start (Config)
+**Phase 8** — ✅ Complete
+**Phase 9** — Ready to start (End-to-End Testing)
 **Phase 9** — End-to-End Testing
 **Phase 10** — Polish & Release

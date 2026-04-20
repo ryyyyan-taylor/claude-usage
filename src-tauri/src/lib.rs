@@ -1,5 +1,6 @@
 pub mod error;
 mod claude;
+mod config;
 mod state;
 mod poller;
 mod notify;
@@ -7,6 +8,7 @@ mod tray;
 
 pub use error::{AppError, Result};
 pub use state::{AppState, UsageSnapshot};
+pub use config::Config;
 
 use std::sync::{Arc, Mutex};
 use tauri::{State, Emitter, Manager};
@@ -56,6 +58,12 @@ async fn refresh_now(app_state: State<'_, Arc<Mutex<AppState>>>, _app: tauri::Ap
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Load config (falls back to defaults if missing/invalid)
+    let config = Config::load();
+
+    // Write default config file if this is first run
+    let _ = Config::write_defaults_if_missing();
+
     // Initialize app state
     let app_state = Arc::new(Mutex::new(AppState::new()));
 
@@ -84,13 +92,22 @@ pub fn run() {
                 }
             }
 
-            // Spawn background poller
+            // Spawn background poller with config values
             let app_handle = app.handle().clone();
             let state_for_poller = app_state.clone();
+            let interval = config.refresh_interval_seconds;
+            let thresholds_5h = config.notify_thresholds_5h.clone();
+            let thresholds_7d = config.notify_thresholds_7d.clone();
             std::thread::spawn(move || {
                 let rt = tokio::runtime::Runtime::new().unwrap();
                 rt.block_on(async {
-                    poller::start_poller(state_for_poller, app_handle).await
+                    poller::start_poller(
+                        state_for_poller,
+                        app_handle,
+                        interval,
+                        thresholds_5h,
+                        thresholds_7d,
+                    ).await
                 });
             });
 

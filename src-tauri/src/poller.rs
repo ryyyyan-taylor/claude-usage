@@ -8,10 +8,16 @@ use tauri::{AppHandle, Manager, Emitter};
 
 /// Start the background polling loop
 ///
-/// Runs in a separate Tokio task, polls every ~60 seconds for new usage data.
+/// Runs in a separate Tokio task, polls on the configured interval.
 /// Updates shared state, emits events to frontend, triggers notifications.
-pub async fn start_poller(state: Arc<Mutex<AppState>>, app: AppHandle) {
-    let interval = Duration::from_secs(60);
+pub async fn start_poller(
+    state: Arc<Mutex<AppState>>,
+    app: AppHandle,
+    interval_secs: u64,
+    thresholds_5h: Vec<u8>,
+    thresholds_7d: Vec<u8>,
+) {
+    let interval = Duration::from_secs(interval_secs);
     let mut rate_limited_count = 0;
 
     loop {
@@ -55,7 +61,7 @@ pub async fn start_poller(state: Arc<Mutex<AppState>>, app: AppHandle) {
                     rate_limited_count = 0;
 
                     // Check thresholds and send notifications
-                    check_thresholds(&mut s, &snapshot, &app);
+                    check_thresholds(&mut s, &snapshot, &app, &thresholds_5h, &thresholds_7d);
                 }
 
                 // Save to cache

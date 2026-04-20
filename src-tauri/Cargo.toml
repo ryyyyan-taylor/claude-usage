@@ -29,4 +29,5 @@ chrono = { version = "0.4", features = ["serde"] }
 thiserror = "1"
 tracing = "0.1"
 notify-rust = "4"
+toml = "0.8"
 
