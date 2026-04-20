@@ -95,11 +95,11 @@
             <div class="extra-content">
               <div class="extra-row">
                 <span>Credits Used:</span>
-                <span class="value">{snapshot.extra_usage.currency ?? "USD"} {snapshot.extra_usage.used_credits.toFixed(2)}</span>
+                <span class="value">{snapshot.extra_usage.currency ?? "USD"} {(snapshot.extra_usage.used_credits / 100).toFixed(2)}</span>
               </div>
               <div class="extra-row">
                 <span>Monthly Limit:</span>
-                <span class="value">{snapshot.extra_usage.currency ?? "USD"} {snapshot.extra_usage.monthly_limit.toFixed(2)}</span>
+                <span class="value">{snapshot.extra_usage.currency ?? "USD"} {(snapshot.extra_usage.monthly_limit / 100).toFixed(2)}</span>
               </div>
               <div class="extra-row">
                 <span>Utilization:</span>

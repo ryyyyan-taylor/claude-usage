@@ -88,8 +88,8 @@ pub struct UsageWindow {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ExtraUsage {
     pub is_enabled: bool,
-    pub used_credits: f64,   // actual value (e.g. 2.61 USD)
-    pub monthly_limit: f64,  // actual value (e.g. 20.00 USD)
+    pub used_credits: f64,   // cents (e.g. 261 = $2.61)
+    pub monthly_limit: f64,  // cents (e.g. 2000 = $20.00)
     pub utilization: f64,    // percentage 0–100
     pub currency: Option<String>,
 }
