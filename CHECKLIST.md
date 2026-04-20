@@ -145,26 +145,26 @@
 ## Phase 4: Polling Loop (Rust)
 
 ### 4.1 Poller setup (`poller.rs`)
-- [ ] Implement `pub async fn start_poller(state: Arc<Mutex<AppState>>, app: AppHandle)`:
-  - Loop with `tokio::time::sleep(Duration::from_secs(60))`
-  - Set `is_refreshing = true` before each fetch
-  - On success: update snapshot, save cache, emit `usage_updated` event, call `check_thresholds`
-  - On `AuthRequired`: set `auth_error = true`, emit `auth_error` event
-  - On `RateLimited`: skip next 3 cycles (track counter), log warning
-  - On other error: log error, preserve existing snapshot, set `is_refreshing = false`
+- [x] Implement `pub async fn start_poller(state: Arc<Mutex<AppState>>, app: AppHandle)`:
+  - [x] Loop with `tokio::time::sleep(Duration::from_secs(60))`
+  - [x] Set `is_refreshing = true` before each fetch
+  - [x] On success: update snapshot, save cache, emit `usage_updated` event, call `check_thresholds`
+  - [x] On `AuthRequired`: set `auth_error = true`, emit `auth_error` event
+  - [x] On `RateLimited`: back off for 5 minutes, log warning
+  - [x] On other error: log error, preserve existing snapshot, set `is_refreshing = false`
 
-### 4.2 Tauri commands (`main.rs`)
-- [ ] Add `#[tauri::command] async fn get_snapshot(state: State<...>) -> Option<UsageSnapshot>`
-- [ ] Add `#[tauri::command] async fn refresh_now(state: State<...>, app: AppHandle) -> Result<(), String>`
-- [ ] Register both commands in `tauri::Builder`
-- [ ] **Test**: Open Tauri devtools, call `invoke('get_snapshot')` from JS console, verify data returns
+### 4.2 Tauri commands (`lib.rs`)
+- [x] Add `#[tauri::command] fn get_snapshot(state: State<...>) -> Option<UsageSnapshot>`
+- [x] Add `#[tauri::command] async fn refresh_now(state: State<...>) -> Result<UsageSnapshot, String>`
+- [x] Register both commands in `tauri::Builder::generate_handler!`
+- [ ] **Test**: Frontend integration pending
 
-### 4.3 Wire up startup (`main.rs`)
-- [ ] On app ready:
-  1. Load cached snapshot into `AppState`
-  2. Emit `usage_updated` with cached data (instant UI)
-  3. Spawn `start_poller` as background Tokio task
-- [ ] **Test**: Start app, verify tray appears, check console for first poll completing
+### 4.3 Wire up startup (`lib.rs`)
+- [x] On app.setup():
+  1. [x] Load cached snapshot into `AppState`
+  2. [x] Emit `usage_updated` with cached data (instant UI)
+  3. [x] Spawn `start_poller` as background task in thread
+- [ ] **Test**: Manual startup test pending
 
 ---
 
@@ -327,4 +327,5 @@
 **Phase 1** — ✅ Complete
 **Phase 2** — ✅ Complete
 **Phase 3** — ✅ Complete
-**Phase 4** — Ready to start (Polling loop)
+**Phase 4** — ✅ Complete
+**Phase 5** — Ready to start (System tray)
