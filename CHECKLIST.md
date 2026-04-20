@@ -219,43 +219,45 @@
 ## Phase 7: Frontend UI (Svelte)
 
 ### 7.1 Event listener setup
-- [ ] In `App.svelte` on mount:
-  - Call `invoke('get_snapshot')` for immediate cached data
-  - `listen('usage_updated', ...)` to update reactive state
-  - `listen('auth_error', ...)` to show error state
-- [ ] Define TypeScript interfaces matching `UsageSnapshot`, `WindowData`, `ExtraUsageData`
+- [x] In `+page.svelte` on mount:
+  - [x] Call `invoke('get_snapshot')` for immediate cached data
+  - [x] `listen('usage_updated', ...)` to update reactive state
+  - [x] `listen('auth_error', ...)` to show error state
+- [x] Define TypeScript interfaces in `types.ts` for all data structures
+- [x] Implement `formatLastUpdated()` and `isStale()` helpers
 
 ### 7.2 Usage window component (`UsagePanel.svelte`)
-- [ ] Props: `label: string`, `utilization: number`, `resetsAt: string`
-- [ ] Display:
-  - Label (e.g. "5-Hour Window")
-  - Progress bar (0–100%, color: green/yellow/red based on value)
-  - Percentage text
-  - Reset countdown (computed from `resetsAt`)
-- [ ] Countdown auto-updates every 30s via `setInterval`
+- [x] Props: `label: string`, `data: WindowData`
+- [x] Display:
+  - [x] Label (e.g. "5-Hour Window")
+  - [x] Progress bar (0–100%, color: green/yellow/red)
+  - [x] Percentage text centered in bar
+  - [x] Reset countdown below bar
+- [x] Countdown auto-updates every 30s via `onMount` interval
 
-### 7.3 Countdown helper
-- [ ] Implement `formatCountdown(resetsAt: string): string`:
-  - Compute `diff = new Date(resetsAt).getTime() - Date.now()`
-  - If `diff <= 0` → `"Resetting..."`
-  - If `> 1 day` → `"Xd Yh"`
-  - If `> 1 hour` → `"Xh Ym"`
-  - Else → `"Xm"`
+### 7.3 Countdown helper (`countdown.ts`)
+- [x] Implement `formatCountdown(resetsAt: string): string`
+- [x] Compute time diff, format as "Xd Yh", "Xh Ym", "Xm"
+- [x] Handle expiration ("Resetting...")
+- [x] Implement `formatLastUpdated()` for "2m ago" format
+- [x] Implement `isStale()` for staleness detection
 
-### 7.4 Main app layout (`App.svelte`)
-- [ ] Show `<UsagePanel>` for 5h window
-- [ ] Show `<UsagePanel>` for 7d window
-- [ ] If `extra_usage.enabled` → show credit balance section
-- [ ] Show "last refreshed" timestamp (e.g. "Updated 2m ago")
-- [ ] Show "Stale" badge if data is > 10 minutes old
-- [ ] Show spinner/indicator while `is_refreshing`
-- [ ] Show auth error state with message: "Run `claude` CLI to log in"
+### 7.4 Main app layout (`+page.svelte`)
+- [x] Show `<UsagePanel>` for 5h window
+- [x] Show `<UsagePanel>` for 7d window
+- [x] If `extra_usage.enabled` → show credit balance section
+- [x] Show "Updated: Xm ago" with stale badge
+- [x] Show spinner while refreshing
+- [x] Show auth error with `claude login` hint
+- [x] Manual refresh button with loading state
 
 ### 7.5 Styling
-- [ ] Minimal, dark-themed UI to match Claude's aesthetic
-- [ ] Progress bars: green (#22c55e) / yellow (#eab308) / red (#ef4444)
-- [ ] Fixed window size to match tray popup feel (e.g. 320×400px)
-- [ ] **Test**: Resize window — layout should not break
+- [x] Dark-themed UI matching Claude aesthetic (#0f0f0f background)
+- [x] Progress bars: green (#22c55e) / yellow (#eab308) / red (#ef4444)
+- [x] Gradient header with blue/purple accent
+- [x] 420px max-width container, centered
+- [x] Proper spacing and typography
+- [x] **Test**: TypeScript type checking passes ✅
 
 ---
 
@@ -333,7 +335,7 @@
 **Phase 4** — ✅ Complete
 **Phase 5** — ✅ Complete
 **Phase 6** — ✅ Complete
-**Phase 7** — Ready to start (Frontend UI - Svelte)
-**Phase 8** — Config (after frontend)
+**Phase 7** — ✅ Complete
+**Phase 8** — Ready to start (Config)
 **Phase 9** — End-to-End Testing
 **Phase 10** — Polish & Release

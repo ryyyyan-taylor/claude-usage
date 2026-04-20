@@ -1,0 +1,115 @@
+<script lang="ts">
+  import { onMount } from "svelte";
+  import { formatCountdown } from "./countdown";
+  import type { WindowData } from "./types";
+
+  export let label: string;
+  export let data: WindowData;
+
+  let countdown: string = "";
+
+  function updateCountdown() {
+    countdown = formatCountdown(data.resets_at);
+  }
+
+  onMount(() => {
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 30000); // Update every 30s
+    return () => clearInterval(interval);
+  });
+
+  $: data && updateCountdown(); // Re-run when data changes
+
+  const percentage = Math.round(data.utilization * 100);
+
+  // Color based on percentage
+  let bgColor = "#22c55e"; // green
+  let textColor = "#16a34a"; // darker green
+  if (percentage >= 90) {
+    bgColor = "#ef4444"; // red
+    textColor = "#dc2626"; // darker red
+  } else if (percentage >= 70) {
+    bgColor = "#eab308"; // yellow
+    textColor = "#ca8a04"; // darker yellow
+  }
+</script>
+
+<div class="panel">
+  <div class="header">
+    <h3>{label}</h3>
+  </div>
+
+  <div class="content">
+    <div class="progress-container">
+      <div class="progress-bar" style="--fill: {percentage}%; --color: {bgColor};">
+        <div class="progress-text">{percentage}%</div>
+      </div>
+    </div>
+
+    <div class="countdown">{countdown}</div>
+  </div>
+</div>
+
+<style>
+  .panel {
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    background: #1a1a1a;
+  }
+
+  .header {
+    margin-bottom: 12px;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .progress-container {
+    position: relative;
+    height: 32px;
+    background: #0a0a0a;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #222;
+  }
+
+  .progress-bar {
+    position: relative;
+    height: 100%;
+    width: var(--fill);
+    background: var(--color);
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    min-width: 40px;
+  }
+
+  .progress-text {
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  .countdown {
+    font-size: 12px;
+    color: #888;
+    text-align: right;
+  }
+</style>
