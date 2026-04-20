@@ -10,7 +10,9 @@ pub struct Credentials {
 }
 
 /// OAuth token block
+/// Fields use camelCase to match the JavaScript CLI credentials file
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct OAuthBlock {
     pub access_token: String,
     pub expires_at: u64, // milliseconds since epoch
@@ -78,17 +80,18 @@ pub async fn refresh_token() -> Result<()> {
 /// Usage window from API response
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct UsageWindow {
-    pub utilization: f64, // 0.0–1.0
-    pub resets_at: String, // ISO 8601 timestamp
+    pub utilization: f64, // percentage 0–100 (already scaled, not 0.0–1.0)
+    pub resets_at: Option<String>, // ISO 8601 timestamp, null if not resetting
 }
 
 /// Extra/paid usage info
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ExtraUsage {
-    pub enabled: bool,
-    pub used_credits: u64, // cents
-    pub monthly_limit: u64, // cents
-    pub utilization: f64,
+    pub is_enabled: bool,
+    pub used_credits: f64,   // actual value (e.g. 2.61 USD)
+    pub monthly_limit: f64,  // actual value (e.g. 20.00 USD)
+    pub utilization: f64,    // percentage 0–100
+    pub currency: Option<String>,
 }
 
 /// Response from api.anthropic.com/api/oauth/usage
@@ -96,7 +99,6 @@ pub struct ExtraUsage {
 pub struct UsageResponse {
     pub five_hour: UsageWindow,
     pub seven_day: UsageWindow,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub extra_usage: Option<ExtraUsage>,
 }
 

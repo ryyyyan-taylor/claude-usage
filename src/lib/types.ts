@@ -3,15 +3,16 @@
  */
 
 export interface WindowData {
-  utilization: number; // 0.0-1.0
+  utilization: number; // percentage 0–100 (already scaled by API)
   resets_at: string; // ISO 8601
 }
 
 export interface ExtraUsageData {
-  enabled: boolean;
-  used_credits: number;
-  monthly_limit: number;
-  utilization: number;
+  is_enabled: boolean;
+  used_credits: number; // e.g. 2.61 USD
+  monthly_limit: number; // e.g. 20.00 USD
+  utilization: number; // percentage 0–100
+  currency: string;
 }
 
 export interface UsageSnapshot {

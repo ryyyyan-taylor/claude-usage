@@ -8,7 +8,8 @@ const THRESHOLDS_5H: &[u8] = &[75, 90];
 /// Uses a latch mechanism: notification fires once when crossing threshold,
 /// resets when usage drops back below threshold.
 pub fn check_thresholds(state: &mut AppState, snapshot: &UsageSnapshot, _app: &AppHandle) {
-    let pct = (snapshot.five_hour.utilization * 100.0) as u8;
+    // utilization is already 0–100 from the API
+    let pct = snapshot.five_hour.utilization.round() as u8;
 
     for &threshold in THRESHOLDS_5H {
         if pct >= threshold && !state.notified_thresholds.contains(&threshold) {

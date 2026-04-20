@@ -89,21 +89,21 @@
         <UsagePanel label="5-Hour Window" data={snapshot.five_hour} />
         <UsagePanel label="7-Day Window" data={snapshot.seven_day} />
 
-        {#if snapshot.extra_usage?.enabled}
+        {#if snapshot.extra_usage?.is_enabled}
           <div class="extra-panel">
             <h3>Extra Usage</h3>
             <div class="extra-content">
               <div class="extra-row">
                 <span>Credits Used:</span>
-                <span class="value">${(snapshot.extra_usage.used_credits / 100).toFixed(2)}</span>
+                <span class="value">{snapshot.extra_usage.currency ?? "USD"} {snapshot.extra_usage.used_credits.toFixed(2)}</span>
               </div>
               <div class="extra-row">
                 <span>Monthly Limit:</span>
-                <span class="value">${(snapshot.extra_usage.monthly_limit / 100).toFixed(2)}</span>
+                <span class="value">{snapshot.extra_usage.currency ?? "USD"} {snapshot.extra_usage.monthly_limit.toFixed(2)}</span>
               </div>
               <div class="extra-row">
                 <span>Utilization:</span>
-                <span class="value">{Math.round(snapshot.extra_usage.utilization * 100)}%</span>
+                <span class="value">{Math.round(snapshot.extra_usage.utilization)}%</span>
               </div>
             </div>
           </div>

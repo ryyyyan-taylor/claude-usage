@@ -7,17 +7,18 @@ use std::path::PathBuf;
 /// A single usage window's data
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WindowData {
-    pub utilization: f64, // 0.0–1.0
+    pub utilization: f64,    // percentage 0–100
     pub resets_at: DateTime<Utc>,
 }
 
 /// Extra/paid usage data
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExtraUsageData {
-    pub enabled: bool,
-    pub used_credits: u64, // cents
-    pub monthly_limit: u64, // cents
-    pub utilization: f64,
+    pub is_enabled: bool,
+    pub used_credits: f64,   // e.g. 2.61 USD
+    pub monthly_limit: f64,  // e.g. 20.00 USD
+    pub utilization: f64,    // percentage 0–100
+    pub currency: String,
 }
 
 /// Complete usage snapshot from API
@@ -35,28 +36,29 @@ impl From<crate::claude::UsageResponse> for UsageSnapshot {
         UsageSnapshot {
             five_hour: WindowData {
                 utilization: resp.five_hour.utilization,
-                resets_at: parse_iso8601(&resp.five_hour.resets_at),
+                resets_at: parse_iso8601_opt(resp.five_hour.resets_at.as_deref()),
             },
             seven_day: WindowData {
                 utilization: resp.seven_day.utilization,
-                resets_at: parse_iso8601(&resp.seven_day.resets_at),
+                resets_at: parse_iso8601_opt(resp.seven_day.resets_at.as_deref()),
             },
             extra_usage: resp.extra_usage.map(|e| ExtraUsageData {
-                enabled: e.enabled,
+                is_enabled: e.is_enabled,
                 used_credits: e.used_credits,
                 monthly_limit: e.monthly_limit,
                 utilization: e.utilization,
+                currency: e.currency.unwrap_or_else(|| "USD".to_string()),
             }),
             fetched_at: Utc::now(),
         }
     }
 }
 
-/// Parse ISO 8601 timestamp, fallback to current time on error
-fn parse_iso8601(s: &str) -> DateTime<Utc> {
-    DateTime::parse_from_rfc3339(s)
+/// Parse optional ISO 8601 timestamp, fallback to far future on error/None
+fn parse_iso8601_opt(s: Option<&str>) -> DateTime<Utc> {
+    s.and_then(|ts| DateTime::parse_from_rfc3339(ts).ok())
         .map(|dt| dt.with_timezone(&Utc))
-        .unwrap_or_else(|_| Utc::now())
+        .unwrap_or_else(|| Utc::now() + chrono::Duration::days(365))
 }
 
 /// Runtime app state
@@ -172,19 +174,25 @@ mod tests {
 
     #[test]
     fn test_parse_iso8601_valid() {
-        let timestamp = "2025-04-19T12:30:45Z";
-        let parsed = parse_iso8601(timestamp);
+        let timestamp = Some("2025-04-19T12:30:45Z");
+        let parsed = parse_iso8601_opt(timestamp);
         assert_eq!(parsed.year(), 2025);
         assert_eq!(parsed.month(), 4);
     }
 
     #[test]
     fn test_parse_iso8601_invalid_fallback() {
-        let timestamp = "invalid";
-        let parsed = parse_iso8601(timestamp);
-        // Should return current time, which is recent
+        // Invalid string → falls back to far future (1 year from now)
+        let parsed = parse_iso8601_opt(Some("invalid"));
         let now = Utc::now();
-        let diff = now.signed_duration_since(parsed).num_seconds().abs();
-        assert!(diff < 1); // Within 1 second
+        assert!(parsed > now);
+    }
+
+    #[test]
+    fn test_parse_iso8601_none_fallback() {
+        // None → falls back to far future
+        let parsed = parse_iso8601_opt(None);
+        let now = Utc::now();
+        assert!(parsed > now);
     }
 }

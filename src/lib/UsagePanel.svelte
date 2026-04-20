@@ -20,18 +20,11 @@
 
   $: data && updateCountdown(); // Re-run when data changes
 
-  const percentage = Math.round(data.utilization * 100);
+  // utilization is already 0–100 from the API
+  $: percentage = Math.min(100, Math.max(0, Math.round(data.utilization)));
 
-  // Color based on percentage
-  let bgColor = "#22c55e"; // green
-  let textColor = "#16a34a"; // darker green
-  if (percentage >= 90) {
-    bgColor = "#ef4444"; // red
-    textColor = "#dc2626"; // darker red
-  } else if (percentage >= 70) {
-    bgColor = "#eab308"; // yellow
-    textColor = "#ca8a04"; // darker yellow
-  }
+  // Color based on percentage (reactive)
+  $: bgColor = percentage >= 90 ? "#ef4444" : percentage >= 70 ? "#eab308" : "#22c55e";
 </script>
 
 <div class="panel">
