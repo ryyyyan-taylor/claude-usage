@@ -203,15 +203,16 @@
 ## Phase 6: Notifications (Rust)
 
 ### 6.1 Threshold notifications (`notify.rs`)
-- [ ] Define `THRESHOLDS_5H: &[u8] = &[75, 90]`
-- [ ] Implement `check_thresholds(state: &mut AppState, snapshot: &UsageSnapshot, app: &AppHandle)`:
-  - Compute `pct = (five_hour.utilization * 100.0) as u8`
-  - For each threshold:
-    - If `pct >= threshold` and not in `notified_thresholds` → send notification + insert to set
-    - If `pct < threshold` → remove from set (reset latch for next crossing)
-- [ ] Send notification via `tauri::api::notification::Notification`
-- [ ] Enable `notification` in `tauri.conf.json` permissions
-- [ ] **Test**: Temporarily lower threshold to 1% — verify notification fires once, not repeatedly
+- [x] Define `THRESHOLDS_5H: &[u8] = &[75, 90]`
+- [x] Implement `check_thresholds(state: &mut AppState, snapshot: &UsageSnapshot, app: &AppHandle)`:
+  - [x] Compute `pct = (five_hour.utilization * 100.0) as u8`
+  - [x] For each threshold:
+    - [x] If `pct >= threshold` and not in `notified_thresholds` → send notification + insert to set
+    - [x] If `pct < threshold` → remove from set (reset latch for next crossing)
+- [x] Send notification via `notify-rust` for native system notifications
+- [x] Implement `send_notification()` with 5-second timeout
+- [x] Add `notify-rust = "4"` to Cargo.toml
+- [x] **Test**: Unit tests verify threshold logic and percentage calculations ✅
 
 ---
 
@@ -331,5 +332,8 @@
 **Phase 3** — ✅ Complete
 **Phase 4** — ✅ Complete
 **Phase 5** — ✅ Complete
-**Phase 6** — Ready to start (Notifications)
-**Phase 7** — Frontend UI (Svelte)
+**Phase 6** — ✅ Complete
+**Phase 7** — Ready to start (Frontend UI - Svelte)
+**Phase 8** — Config (after frontend)
+**Phase 9** — End-to-End Testing
+**Phase 10** — Polish & Release

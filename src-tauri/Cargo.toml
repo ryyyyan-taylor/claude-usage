@@ -28,4 +28,5 @@ dirs = "5"
 chrono = { version = "0.4", features = ["serde"] }
 thiserror = "1"
 tracing = "0.1"
+notify-rust = "4"
 
