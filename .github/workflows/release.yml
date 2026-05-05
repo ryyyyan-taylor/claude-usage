@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+          - os: macos-latest
+          - os: windows-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install macOS universal targets
+        if: matrix.os == 'macos-latest'
+        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
+
+      - name: Install Linux dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libgtk-3-dev
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install yarn
+        run: npm install -g yarn
+
+      - name: Install frontend dependencies
+        run: yarn install
+
+      - name: Build and publish release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NO_STRIP: '1'
+          APPIMAGE_EXTRACT_AND_RUN: '1'
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Claude Usage ${{ github.ref_name }}
+          releaseDraft: false
+          prerelease: false
+          args: ${{ matrix.os == 'macos-latest' && '--target universal-apple-darwin' || '' }}
