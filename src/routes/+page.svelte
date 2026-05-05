@@ -69,18 +69,6 @@
 
 <main>
   <div class="container">
-    <header>
-      <h1>Claude Usage</h1>
-      <button on:click={handleRefresh} disabled={isRefreshing} class="refresh-btn">
-        {#if isRefreshing}
-          <span class="spinner" />
-          Refreshing...
-        {:else}
-          🔄 Refresh
-        {/if}
-      </button>
-    </header>
-
     {#if authError}
       <div class="error-box">
         <p>
@@ -122,6 +110,14 @@
       </div>
 
       <footer>
+        <button on:click={handleRefresh} disabled={isRefreshing} class="refresh-btn">
+          {#if isRefreshing}
+            <span class="spinner"></span>
+            Refreshing...
+          {:else}
+            🔄 Refresh
+          {/if}
+        </button>
         <div class="status">
           <span class="label">Updated:</span>
           <span class="value">{formatLastUpdated(lastUpdated)}</span>
@@ -165,24 +161,6 @@
     background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  }
-
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-    gap: 12px;
-  }
-
-  h1 {
-    margin: 0;
-    font-size: 28px;
-    font-weight: 700;
-    background: linear-gradient(135deg, #60a5fa, #8b5cf6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
   }
 
   .refresh-btn {
@@ -309,12 +287,13 @@
     padding-top: 12px;
     border-top: 1px solid #222;
     font-size: 12px;
-    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .status {
     display: flex;
-    justify-content: flex-end;
     align-items: center;
     gap: 8px;
     color: #888;

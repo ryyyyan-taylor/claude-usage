@@ -1,4 +1,4 @@
-<a href="https://aimeos.org/">
+<a href="https://claude.ai">
     <img src="https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-png/dark/claude.png" alt="Claude logo" title="Claude" align="right" height="60" />
 </a>
 

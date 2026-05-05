@@ -9,3 +9,10 @@ node_modules
 !.env.example
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# makepkg build artifacts
+pkg/src/
+pkg/pkg/
+pkg/*.pkg.tar.zst
+pkg/*.deb
+pkg/*.rpm
