@@ -7,3 +7,9 @@
 A small app that monitors your Claude usage in real time.
 
 ![Screenshot](screenshot.png)
+
+> **Disclaimer:** This app uses an unofficial, undocumented Anthropic API endpoint (`/api/oauth/usage`) that is also used internally by the Claude CLI. It is not part of Anthropic's public API and may change or break without notice. This project is not affiliated with or endorsed by Anthropic.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
