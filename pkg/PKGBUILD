@@ -1,0 +1,28 @@
+# Maintainer: ryyyyan-taylor <ryan4125taylor@gmail.com>
+pkgname=claude-usage
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Desktop app that monitors Claude API usage in real time"
+arch=('x86_64')
+url="https://github.com/ryyyyan-taylor/claude-usage"
+license=('MIT')
+depends=('webkit2gtk-4.1' 'gtk3')
+source=("${pkgname}-${pkgver}.deb::https://github.com/ryyyyan-taylor/claude-usage/releases/download/v${pkgver}/Claude.Usage_${pkgver}_amd64.deb")
+sha256sums=('SKIP')
+
+package() {
+    cd "${srcdir}"
+    ar x "${pkgname}-${pkgver}.deb"
+    bsdtar xf data.tar.*
+
+    install -Dm755 "usr/bin/claude-usage" "${pkgdir}/usr/bin/claude-usage"
+    install -Dm644 "usr/share/applications/claude-usage.desktop" \
+        "${pkgdir}/usr/share/applications/claude-usage.desktop"
+
+    for size in 32x32 128x128; do
+        install -Dm644 "usr/share/icons/hicolor/${size}/apps/claude-usage.png" \
+            "${pkgdir}/usr/share/icons/hicolor/${size}/apps/claude-usage.png"
+    done
+
+    install -Dm644 "${startdir}/../LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
