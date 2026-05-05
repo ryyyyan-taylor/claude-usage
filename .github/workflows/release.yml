@@ -51,6 +51,20 @@ jobs:
       - name: Install frontend dependencies
         run: yarn install
 
+      - name: Set version from tag
+        shell: node {0}
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          const fs = require('fs');
+          const version = process.env.VERSION.replace(/^v/, '');
+          const conf = JSON.parse(fs.readFileSync('src-tauri/tauri.conf.json', 'utf8'));
+          conf.version = version;
+          fs.writeFileSync('src-tauri/tauri.conf.json', JSON.stringify(conf, null, 2) + '\n');
+          let cargo = fs.readFileSync('src-tauri/Cargo.toml', 'utf8');
+          cargo = cargo.replace(/^version = ".*"/m, `version = "${version}"`);
+          fs.writeFileSync('src-tauri/Cargo.toml', cargo);
+
       - name: Build and publish release
         uses: tauri-apps/tauri-action@v0
         env:
