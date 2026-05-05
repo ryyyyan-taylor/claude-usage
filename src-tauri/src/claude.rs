@@ -119,7 +119,6 @@ pub async fn fetch_usage(token: &str) -> Result<UsageResponse> {
         reqwest::StatusCode::OK => {
             let body = resp.text().await
                 .map_err(|e| AppError::Network(format!("Failed to read body: {e}")))?;
-            eprintln!("[claude-usage] API response body: {body}");
             serde_json::from_str::<UsageResponse>(&body)
                 .map_err(|e| AppError::Parse(format!("{e} | body: {}", &body[..body.len().min(300)])))
         }

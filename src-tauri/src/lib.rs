@@ -73,7 +73,6 @@ pub fn run() {
     }
 
     tauri::Builder::default()
-        .plugin(tauri_plugin_opener::init())
         .manage(app_state.clone())
         .invoke_handler(tauri::generate_handler![get_snapshot, refresh_now])
         .setup(move |app| {
