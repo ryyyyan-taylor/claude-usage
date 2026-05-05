@@ -9,6 +9,7 @@
   let snapshot: UsageSnapshot | null = null;
   let isRefreshing = false;
   let authError = false;
+  let lastError: string | null = null;
   let lastUpdated: string | null = null;
 
   onMount(async () => {
@@ -28,6 +29,7 @@
       lastUpdated = snapshot.fetched_at;
       isRefreshing = false;
       authError = false;
+      lastError = null;
     });
 
     // Listen for auth errors
@@ -51,9 +53,12 @@
       snapshot = result;
       lastUpdated = result.fetched_at;
       authError = false;
+      lastError = null;
     } catch (e) {
-      console.error("Refresh failed:", e);
-      authError = true;
+      const msg = String(e);
+      console.error("Refresh failed:", msg);
+      authError = msg.includes("Authentication required") || msg.includes("credentials");
+      lastError = msg;
     } finally {
       isRefreshing = false;
     }
@@ -84,7 +89,13 @@
         <p>Run the Claude CLI to log in:</p>
         <code>claude login</code>
       </div>
-    {:else if snapshot}
+    {:else if lastError}
+      <div class="error-box warning">
+        <p><strong>Refresh Failed</strong></p>
+        <p class="error-detail">{lastError}</p>
+      </div>
+    {/if}
+    {#if snapshot}
       <div class="panels">
         <UsagePanel label="5-Hour Window" data={snapshot.five_hour} />
         <UsagePanel label="7-Day Window" data={snapshot.seven_day} />
@@ -221,6 +232,18 @@
     border-radius: 8px;
     padding: 16px;
     margin-bottom: 16px;
+  }
+
+  .error-box.warning {
+    background: #422006;
+    border-color: #713f12;
+  }
+
+  .error-detail {
+    font-size: 11px;
+    font-family: "Monaco", "Courier New", monospace;
+    color: #fbbf24;
+    word-break: break-all;
   }
 
   .error-box p {

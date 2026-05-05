@@ -117,9 +117,11 @@ pub async fn fetch_usage(token: &str) -> Result<UsageResponse> {
 
     match resp.status() {
         reqwest::StatusCode::OK => {
-            resp.json::<UsageResponse>()
-                .await
-                .map_err(|e| AppError::Parse(e.to_string()))
+            let body = resp.text().await
+                .map_err(|e| AppError::Network(format!("Failed to read body: {e}")))?;
+            eprintln!("[claude-usage] API response body: {body}");
+            serde_json::from_str::<UsageResponse>(&body)
+                .map_err(|e| AppError::Parse(format!("{e} | body: {}", &body[..body.len().min(300)])))
         }
         reqwest::StatusCode::UNAUTHORIZED => Err(AppError::AuthRequired),
         reqwest::StatusCode::TOO_MANY_REQUESTS => Err(AppError::RateLimited),
