@@ -1,7 +1,9 @@
-# Tauri + SvelteKit + TypeScript
+<a href="https://aimeos.org/">
+    <img src="https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-png/dark/claude.png" alt="Claude logo" title="Claude" align="right" height="60" />
+</a>
 
-This template should help get you started developing with Tauri, SvelteKit and TypeScript in Vite.
+# Claude Usage
 
-## Recommended IDE Setup
+A small app that monitors your Claude usage in real time.
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+![Screenshot](screenshot.png)
