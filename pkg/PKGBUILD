@@ -1,6 +1,6 @@
 # Maintainer: ryyyyan-taylor <ryan4125taylor@gmail.com>
 pkgname=claude-usage
-pkgver=0.0.2
+pkgver=0.0.3
 pkgrel=1
 pkgdesc="Desktop app that monitors Claude API usage in real time"
 arch=('x86_64')

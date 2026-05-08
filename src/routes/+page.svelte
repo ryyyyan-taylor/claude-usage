@@ -65,7 +65,16 @@
   }
 
   $: stale = isStale(lastUpdated);
+
+  function handleKeydown(e: KeyboardEvent) {
+    if ((e.ctrlKey || e.metaKey) && e.key === "r") {
+      e.preventDefault();
+      handleRefresh();
+    }
+  }
 </script>
+
+<svelte:window on:keydown={handleKeydown} />
 
 <main>
   <div class="container">
@@ -128,7 +137,7 @@
       </footer>
     {:else}
       <div class="loading">
-        <span class="spinner" />
+        <span class="spinner"></span>
         <p>Loading usage data...</p>
       </div>
     {/if}
